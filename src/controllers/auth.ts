@@ -15,7 +15,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const admin = await exec();
     if (admin) {
       if (admin.password != password) throw new error('invalid credentials');
-    } else throw new error('invalid credentials');
+    } else throw new Error('invalid credentials');
     res.cookie('JWT', jwt.sign({ username, password }, process.env.JWT_SECRET));
     return res.json({ success: true, message: 'Welcome!' });
   } catch (e) {
