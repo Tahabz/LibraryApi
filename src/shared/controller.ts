@@ -15,7 +15,7 @@ type DeleteOneFn<T, U> = (filter: Filter<T>) => () => Promise<U>;
 const getOne =
   <T, U>(getOne: GetOneFn<T, U>) =>
   (filter: FilterQuery<T>) =>
-  (arg: Arg) =>
+  (arg?: Arg) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const select = getOne(filter);
@@ -30,7 +30,7 @@ const getOne =
 const getMany =
   <T, U>(getMany: GetManyFn<T, U>) =>
   (filter: FilterQuery<T>) =>
-  (arg: Arg) =>
+  (arg?: Arg) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const select = getMany(filter);
@@ -72,12 +72,13 @@ const updateOne =
     try {
       const filter = req.body.filter;
       const data = req.body.data;
-      const options = req.body.options;
-
+      let options = req.body.options;
+      if (!options) options = { new: true };
       const insertData = updateOne(filter);
       const insertOptions = insertData(data);
       const exec = insertOptions(options);
       const updated = await exec();
+      if (!updated) return res.status(404).json({ success: false, message: 'Document not found' });
       return res.status(200).json({ success: true, message: updated });
     } catch (e) {
       next(e);
@@ -91,6 +92,7 @@ const deleteOne =
       const filter = req.body.filter;
       const exec = deleteOne(filter);
       const deleted = await exec();
+      if (!deleted) return res.status(404).json({ success: false, message: 'Document not found' });
       return res.status(200).json({ success: true, message: deleted });
     } catch (e) {
       next(e);
