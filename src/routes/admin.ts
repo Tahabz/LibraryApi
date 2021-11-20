@@ -1,16 +1,19 @@
 import { Router } from 'express';
+import admin from '../controllers/admin';
 import { login } from '../controllers/auth';
 import book from '../controllers/book';
 import reservation from '../controllers/reservation';
-import auth from '../middlewares/auth';
+import { adminAUth } from '../middlewares/auth';
 
 const adminRouter = Router();
 
 adminRouter.post('/login', login);
 
-adminRouter.use(auth);
+adminRouter.use(adminAUth);
 
-adminRouter.get('/users');
+adminRouter.post('/register', admin.createOne);
+
+adminRouter.get('/users', (req, res) => res.end('hello world'));
 
 adminRouter.get('/books/:id', async (req, res, next) => {
   const select = book.getOne({ _id: req.params.id });
