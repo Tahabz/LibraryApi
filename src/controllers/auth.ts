@@ -1,12 +1,13 @@
 import { error } from 'console';
 import { NextFunction, Request, Response } from 'express';
 import adminService from '../services/admin';
+import userService from '../services/user';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const username = req.body.username;
     const password = req.body.password;
@@ -18,6 +19,21 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     } else throw new Error('invalid credentials');
     res.cookie('JWT', jwt.sign({ username, password }, process.env.JWT_SECRET));
     return res.json({ success: true, message: 'Welcome!' });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const intra_id = req.body.user_id;
+    const exec = userService.getOne({ intra_id })();
+    let user = await exec();
+    if (!user) {
+      user = await userService.createOne({ intra_id })();
+    }
+    res.cookie('JWT', jwt.sign({ intra_id }, process.env.JWT_SECRET));
+    return res.json({ success: true, message: user });
   } catch (e) {
     next(e);
   }
