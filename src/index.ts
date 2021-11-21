@@ -19,6 +19,8 @@ app.get('/', (req, res) => {
 app.use('/user', userRouter);
 app.use('/admin', adminRouter);
 app.use(error);
+app.get(/.*/, (req, res) => res.status(404).json({ success: false, message: 'resource does not exist!' }));
+
 const start = async () => {
   try {
     await connect();
