@@ -3,18 +3,21 @@ import * as dotenv from 'dotenv';
 import { connect } from './db';
 import adminRouter from './routes/admin';
 import error from './middlewares/error';
+import userRouter from './routes/user';
+import morgan from 'morgan';
 
 dotenv.config();
 const app = express();
 
+app.use(morgan('dev'));
 app.use(express.json());
 
 app.get('/', (req, res) => {
   return res.end('hello world');
 });
 
+app.use('/user', userRouter);
 app.use('/admin', adminRouter);
-
 app.use(error);
 const start = async () => {
   try {
